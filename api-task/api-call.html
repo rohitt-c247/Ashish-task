@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+</head>
+
+<body>
+
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td,
+        th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 12px;
+        }
+
+        section.input-block {
+            padding: 20px 0px;
+        }
+
+        section.input-block .inner_input_block .form-control {
+            box-shadow: none;
+            border: none;
+            margin: 10px 0px;
+            padding: 0px;
+        }
+
+        section.input-block .inner_input_block .form-control label {
+            margin-right: 10px;
+            width: 100px;
+        }
+
+        section.input-block .inner_input_block .form-control select#number {
+            width: 180px;
+            height: 25px;
+        }
+
+        section.input-block .inner_input_block .form-control button {
+            margin-left: 20px;
+            background: #000;
+            color: #fff;
+            padding: 2px 14px;
+            border-radius: 6px;
+        }
+
+        .block-area {
+            width: auto;
+            border: 1px solid #000;
+            padding: 4px;
+            height: 20px;
+            line-height: normal;
+            vertical-align: middle;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+
+    <!-- Here a loader is created which 
+             loads till response comes -->
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status" id="loading">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <h1>Registered Employees</h1>
+
+    <!-- <div class="container">
+            <div id="demo" class="block-area"></div>
+        </div> -->
+
+    <section class="input-block">
+        <div class="container">
+            <div class="inner_input_block">
+                <form action="#">
+                    <div class="form-block">
+                        <div class="form-control">
+                            <label for="dataSheet">Get Data:</label>
+                            <input type="text" name="dataSheet" id="data-get">
+                            <button type="button" onclick="myFunction(event, id)">Update</button>
+                            <button type="button" onclick="resetFunction()">Reset</button>
+                        </div>
+                        <div class="form-control">
+                            <label for="numbername">Text:</label>
+                            <select id="number" name="option" onchange="update()">
+                            </select>
+                            <button type="submit" onclick="myFunction(event, id)">Update</button>
+                            <button type="button" onclick="resetFunction()">Reset</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- table for showing data -->
+    <table id="employees"></table>
+
+    <script>
+        // api url
+        const api_url = "https://jsonplaceholder.typicode.com/users";
+
+        function myFunction(event, Id) {
+            var selectedEmail = document.getElementById("data-get").value;
+            checkEmail(selectedEmail);
+        }
+
+        function update() {
+            var select = document.getElementById('number');
+            var selectedEmail = select.options[select.selectedIndex].value;
+            checkEmail(selectedEmail);
+        }
+
+        async function checkEmail(selectedEmail) {
+            const response = await fetch(api_url);
+            // Storing data in form of JSON
+            var data = await response.json();
+
+            const personemail = data.filter(filterFunction);
+            data = personemail
+
+            function filterFunction(detail) {
+                let email;
+                if (detail.email === selectedEmail) {
+                    email = detail.email;
+                }
+                return email
+            }
+            show(personemail)
+        }
+
+        // Defining async function
+        async function getapi(url) {
+
+            // Storing response
+            const response = await fetch(url);
+
+            // Storing data in form of JSON
+            var data = await response.json();
+            if (response) {
+                hideloader();
+            }
+            show(data);
+
+            let arr=[];
+            const emailList = data.map((detail)=>{
+              return arr.push(detail.email);
+            })
+            const selectData = document.getElementById("number");
+            let option = `<option value="Please select"> please select </option>`;
+            arr.map((r) => {
+              return(option += `<option value="${r}">${r} </option>`)
+            });
+            selectData.innerHTML = option;
+        }
+
+        // Calling that async function
+        getapi(api_url);
+
+        function resetFunction() {
+            getapi(api_url);
+        }
+
+        // Function to hide the loader
+        function hideloader() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        // Function to define innerHTML for HTML table
+        function show(data) {
+            let table = document.getElementById("employees");
+            let tab =
+                `<tr>
+          <th>Id</th>
+          <th>Name</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Address</th>
+          <th>Phone</th>
+          <th>Website</th>
+          <th>Company</th>
+         </tr>`;
+
+            // Loop to access all rows 
+            data.map((r) => {
+                return (
+                    tab += `<tr> 
+    <td>${r.id} </td>
+    <td>${r.name}</td>
+    <td>${r.username}</td> 
+    <td>${r.email}</td>
+    <td>${r.address.street}</td>
+    <td>${r.phone}</td> 
+    <td>${r.website}</td>
+    <td>${r.company.name, r.company.catchPhrase}</td>        
+    </tr>`)
+            });
+            // Setting innerHTML as tab variable
+            table.innerHTML = tab;
+        }
+    </script>
+
+
+</body>
+
+</html>
